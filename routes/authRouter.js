@@ -139,22 +139,34 @@ router.delete("/delete", auth, async (req, res) => {
   }
 });
 
-router.post("/token", (req, res) => {
+router.post("/token", async (req, res) => {
   const refreshToken = req.body.token;
   if (refreshToken == null) return res.sendStatus(401);
 
+  var userId = jwt.decode(refreshToken, process.env.JWT_REFRESH_TOKEN_SECRET)
+    .id;
+
   // Check if refresh token actually exists otherwise throw unauthorized error
   // DB that contains only refresh tokens
+  const matchedTokens = await RefreshToken.find({ uid: userId });
 
-  jwt.verify(
-    refreshToken,
-    process.env.JWT_REFRESH_TOKEN_SECRET,
-    (err, user) => {
-      if (err) return res.sendStatus(403);
-      const accessToken = generateAccessToken(user.id);
-      res.json(accessToken);
-    }
-  );
+  let matchedCounter = 0;
+  matchedTokens.map(async (element) => {
+    const response = bcrypt.compare(refreshToken, element.refreshToken);
+    if (response) matchedCounter += 1;
+  });
+
+  if (matchedCounter > 0) {
+    jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_TOKEN_SECRET,
+      (err, user) => {
+        if (err) return res.sendStatus(403);
+        const accessToken = generateAccessToken(user.id);
+        res.json(accessToken);
+      }
+    );
+  } else return res.sendStatus(401);
 });
 
 router.delete("/logout", auth, async (req, res) => {
