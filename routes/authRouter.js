@@ -11,7 +11,7 @@ const generateAccessToken = (userID) => {
       id: userID,
     },
     process.env.JWT_ACCESS_TOKEN_SECRET,
-    { expiresIn: "1m" }
+    { expiresIn: "50m" }
   );
 };
 
@@ -157,8 +157,15 @@ router.post("/token", (req, res) => {
   );
 });
 
-router.delete("/logout", auth, (req, res) => {
-  // Delete Refresh Token from database
+router.delete("/logout", auth, async (req, res) => {
+  // Delete all refresh tokens for the user in the DB
+  await RefreshToken.deleteMany({ uid: req.user.id }, (err, result) => {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(result);
+    }
+  });
 });
 
 router.post("/tokenIsValid", async (req, res) => {
