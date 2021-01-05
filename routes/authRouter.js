@@ -4,6 +4,27 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../models/userModel");
 
+const generateAccessToken = (userID) => {
+  return jwt.sign(
+    {
+      id: userID,
+    },
+    process.env.JWT_ACCESS_TOKEN_SECRET,
+    { expiresIn: "1m" }
+  );
+};
+
+const generateRefreshToken = (userID) => {
+  //TODO save the refresh token to a refresh token DB
+  return jwt.sign(
+    {
+      id: userID,
+    },
+    process.env.JWT_REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+};
+
 router.post("/register", async (req, res) => {
   try {
     let { email, password, passwordCheck, displayName } = req.body;
@@ -80,18 +101,12 @@ router.post("/login", async (req, res) => {
         msg: "Invalid Credentials",
       });
 
-    // Create JWT. Store the UserID in the JWT to be used later
-    // and include a secret password that only the developer knows
-    // to verify that this token was not modified
-    const access_token = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.JWT_ACCESS_TOKEN_SECRET
-    );
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
     res.json({
-      access_token,
+      accessToken,
+      refreshToken,
       user: {
         id: user._id,
         displayName: user.displayName,
@@ -109,6 +124,28 @@ router.delete("/delete", auth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.post("/token", (req, res) => {
+  const refreshToken = req.body.token;
+  if (refreshToken == null) return res.sendStatus(401);
+
+  // Check if refresh token actually exists
+  // DB that contains only refresh tokens
+
+  jwt.verify(
+    refreshToken,
+    process.env.JWT_REFRESH_TOKEN_SECRET,
+    (err, user) => {
+      if (err) return res.sendStatus(403);
+      const accessToken = generateAccessToken({ name: user.id });
+      res.json(accessToken);
+    }
+  );
+});
+
+router.delete("/logout", (req, res) => {
+  // Delete Refresh Token from database
 });
 
 router.post("/tokenIsValid", async (req, res) => {
