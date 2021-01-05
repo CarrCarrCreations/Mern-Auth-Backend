@@ -107,6 +107,16 @@ router.post("/login", async (req, res) => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
+    const salt = await bcrypt.genSalt();
+    const resetTokenHashed = await bcrypt.hash(refreshToken, salt);
+
+    const newRt = new RefreshToken({
+      uid: user._id,
+      refreshToken: resetTokenHashed,
+    });
+
+    const savedRt = await newRt.save();
+
     res.json({
       accessToken,
       refreshToken,
@@ -147,7 +157,7 @@ router.post("/token", (req, res) => {
   );
 });
 
-router.delete("/logout", (req, res) => {
+router.delete("/logout", auth, (req, res) => {
   // Delete Refresh Token from database
 });
 
