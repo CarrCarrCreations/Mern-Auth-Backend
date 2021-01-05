@@ -83,15 +83,15 @@ router.post("/login", async (req, res) => {
     // Create JWT. Store the UserID in the JWT to be used later
     // and include a secret password that only the developer knows
     // to verify that this token was not modified
-    const token = jwt.sign(
+    const access_token = jwt.sign(
       {
         id: user._id,
       },
-      process.env.JWT_SECRET
+      process.env.JWT_ACCESS_TOKEN_SECRET
     );
 
     res.json({
-      token,
+      access_token,
       user: {
         id: user._id,
         displayName: user.displayName,
@@ -104,7 +104,7 @@ router.post("/login", async (req, res) => {
 
 router.delete("/delete", auth, async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.user);
+    const deletedUser = await User.findByIdAndDelete(req.user.id);
     res.json(deletedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -118,7 +118,7 @@ router.post("/tokenIsValid", async (req, res) => {
     if (!token) return res.json(false);
 
     // If token cannot be verified against JWT_SECRET return false
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    const verified = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET);
     if (!verified) return res.json(false);
 
     // Verify that the userId exists in DB given in the JWT token
@@ -136,7 +136,7 @@ router.post("/tokenIsValid", async (req, res) => {
 // This is how you get all information from the DB based on the currently
 // logged in user
 router.get("/", auth, async (req, res) => {
-  const user = await User.findById(req.user);
+  const user = await User.findById(req.user.id);
   res.json({
     id: user._id,
     displayName: user.displayName,
