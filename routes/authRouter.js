@@ -138,7 +138,8 @@ router.post("/token", (req, res) => {
     process.env.JWT_REFRESH_TOKEN_SECRET,
     (err, user) => {
       if (err) return res.sendStatus(403);
-      const accessToken = generateAccessToken({ name: user.id });
+      console.log(`/token - ${user.id}`);
+      const accessToken = generateAccessToken(user.id);
       res.json(accessToken);
     }
   );
@@ -155,10 +156,32 @@ router.post("/tokenIsValid", async (req, res) => {
     if (!token) return res.json(false);
 
     // If token cannot be verified against JWT_SECRET return false
+    const verified = jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET);
+    if (!verified) return res.json(false);
+
+    // Verify that the userId exists in DB given in the JWT token
+    const user = await User.findById(verified.id);
+    if (!user) return res.json(false);
+
+    return res.json(true);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/accessTokenIsValid", async (req, res) => {
+  try {
+    const token = req.header("x-auth-token");
+    // If no token exists, return false
+    if (!token) return res.json(false);
+
+    // If token cannot be verified against JWT_SECRET return false
     const verified = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET);
     if (!verified) return res.json(false);
 
     // Verify that the userId exists in DB given in the JWT token
+    console.log(`Verified ID: ${verified.id}`);
     const user = await User.findById(verified.id);
     if (!user) return res.json(false);
 

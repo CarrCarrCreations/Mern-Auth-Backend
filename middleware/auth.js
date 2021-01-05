@@ -18,6 +18,7 @@ const auth = (req, res, next) => {
       // the end point. req.user will now return the user's id
       // req.user = verified.id;
       req.user = user;
+      console.log(req.user);
       next();
     });
   } catch (err) {
