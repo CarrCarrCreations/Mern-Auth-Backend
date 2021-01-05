@@ -130,7 +130,7 @@ router.post("/token", (req, res) => {
   const refreshToken = req.body.token;
   if (refreshToken == null) return res.sendStatus(401);
 
-  // Check if refresh token actually exists
+  // Check if refresh token actually exists otherwise throw unauthorized error
   // DB that contains only refresh tokens
 
   jwt.verify(
