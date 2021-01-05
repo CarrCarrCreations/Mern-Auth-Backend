@@ -138,7 +138,6 @@ router.post("/token", (req, res) => {
     process.env.JWT_REFRESH_TOKEN_SECRET,
     (err, user) => {
       if (err) return res.sendStatus(403);
-      console.log(`/token - ${user.id}`);
       const accessToken = generateAccessToken(user.id);
       res.json(accessToken);
     }
@@ -181,7 +180,7 @@ router.post("/accessTokenIsValid", async (req, res) => {
     if (!verified) return res.json(false);
 
     // Verify that the userId exists in DB given in the JWT token
-    console.log(`Verified ID: ${verified.id}`);
+
     const user = await User.findById(verified.id);
     if (!user) return res.json(false);
 
