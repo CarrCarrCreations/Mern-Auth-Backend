@@ -8,17 +8,19 @@ const auth = (req, res, next) => {
         .status(401)
         .json({ msg: "No authentication token, access denied." });
 
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
+    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, user) => {
+      if (err)
+        return res
+          .status(401)
+          .json({ msg: "Token verification failed, access denied." });
 
-    if (!verified)
-      return res
-        .status(401)
-        .json({ msg: "Token verification failed, access denied." });
-
-    // Once user has been verified, save their userId into the request and pass it to
-    // the end point. req.user will now return the user's id
-    req.user = verified.id;
-    next();
+      // Once user has been verified, save their userId into the request and pass it to
+      // the end point. req.user will now return the user's id
+      // req.user = verified.id;
+      req.user = user;
+      console.log(req.user);
+      next();
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
