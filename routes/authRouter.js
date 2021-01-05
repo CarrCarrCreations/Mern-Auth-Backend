@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../models/userModel");
+const RefreshToken = require("../models/refreshTokenModel");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -58,17 +59,19 @@ router.post("/register", async (req, res) => {
 
     // Hash the password, NEVER save pure password in database
     const salt = await bcrypt.genSalt();
-    const passwordHash = await bcrypt.hash(password, salt);
+    await bcrypt.hash(password, salt, async (err, passwordHash) => {
+      if (err) return res.json(err);
 
-    //Save the user
-    const newUser = new User({
-      email,
-      password: passwordHash,
-      displayName,
+      //Save the user
+      const newUser = new User({
+        email,
+        password: passwordHash,
+        displayName,
+      });
+
+      const savedUser = await newUser.save();
+      res.json(savedUser);
     });
-    const savedUser = await newUser.save();
-
-    res.json(savedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
