@@ -43,21 +43,25 @@ router.post("/", async (req, res) => {
   // This token is needed for future requests for user name, email, etc.
   const code = req.body.code;
 
-  const { data } = await axios({
+  await axios({
     url: `https://oauth2.googleapis.com/token`,
     method: "post",
     data: {
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: "http://localhost:3000/google/",
+      redirect_uri: "http://localhost:3000/google/login",
       grant_type: "authorization_code",
       code,
     },
-  });
-
-  const userInfo = await getGoogleUserInfo(data.access_token);
-
-  res.json(userInfo);
+  })
+    .then(async (response) => {
+      const userInfo = await getGoogleUserInfo(response.data.access_token);
+      res.json(userInfo);
+    })
+    .catch((error) => {
+      console.log(error.message);
+      res.json(error.message);
+    });
 });
 
 router.post("/login", async (req, res) => {
