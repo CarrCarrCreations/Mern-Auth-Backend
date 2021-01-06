@@ -16,7 +16,6 @@ const generateAccessToken = (userID) => {
 };
 
 const generateRefreshToken = (userID) => {
-  //TODO save the refresh token to a refresh token DB
   return jwt.sign(
     {
       id: userID,
