@@ -3,26 +3,10 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const RefreshToken = require("../models/refreshTokenModel");
-
-const generateAccessToken = (userID) => {
-  return jwt.sign(
-    {
-      id: userID,
-    },
-    process.env.JWT_ACCESS_TOKEN_SECRET,
-    { expiresIn: "50m" }
-  );
-};
-
-const generateRefreshToken = (userID) => {
-  return jwt.sign(
-    {
-      id: userID,
-    },
-    process.env.JWT_REFRESH_TOKEN_SECRET,
-    { expiresIn: "7d" }
-  );
-};
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("./commonFunctions");
 
 const getGoogleUserInfo = async (access_token) => {
   const { data } = await axios({

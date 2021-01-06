@@ -4,26 +4,10 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../models/userModel");
 const RefreshToken = require("../models/refreshTokenModel");
-
-const generateAccessToken = (userID) => {
-  return jwt.sign(
-    {
-      id: userID,
-    },
-    process.env.JWT_ACCESS_TOKEN_SECRET,
-    { expiresIn: "50m" }
-  );
-};
-
-const generateRefreshToken = (userID) => {
-  return jwt.sign(
-    {
-      id: userID,
-    },
-    process.env.JWT_REFRESH_TOKEN_SECRET,
-    { expiresIn: "7d" }
-  );
-};
+const {
+  generateAccessToken,
+  generateRefreshToken,
+} = require("./commonFunctions");
 
 router.post("/register", async (req, res) => {
   try {
