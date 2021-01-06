@@ -30,3 +30,4 @@ mongoose.connect(
 
 // Setup routes
 app.use("/", require("./routes/authRouter"));
+app.use("/google", require("./routes/googleRouter"));
