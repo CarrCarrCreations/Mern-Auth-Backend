@@ -162,7 +162,7 @@ router.post("/token", async (req, res) => {
   } else return res.sendStatus(401);
 });
 
-router.delete("/logout", auth, async (req, res) => {
+router.post("/logout", auth, async (req, res) => {
   // Delete all refresh tokens for the user in the DB
   await RefreshToken.deleteMany({ uid: req.user.id }, (err, result) => {
     if (err) {
