@@ -6,6 +6,7 @@ const RefreshToken = require("../models/refreshTokenModel");
 const {
   generateAccessToken,
   generateRefreshToken,
+  generateAccessAndRefreshTokens,
 } = require("./commonFunctions");
 
 const getGoogleUserInfo = async (access_token) => {
@@ -71,8 +72,9 @@ router.post("/login", async (req, res) => {
         msg: "Account does not exist",
       });
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
+      user.id
+    );
 
     const newRt = new RefreshToken({
       uid: user._id,

@@ -7,6 +7,7 @@ const RefreshToken = require("../models/refreshTokenModel");
 const {
   generateAccessToken,
   generateRefreshToken,
+  generateAccessAndRefreshTokens,
 } = require("./commonFunctions");
 
 router.post("/register", async (req, res) => {
@@ -87,8 +88,9 @@ router.post("/login", async (req, res) => {
         msg: "Invalid Credentials",
       });
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
+      user.id
+    );
 
     const newRt = new RefreshToken({
       uid: user._id,

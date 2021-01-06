@@ -20,7 +20,18 @@ const generateRefreshToken = (userID) => {
   );
 };
 
+const generateAccessAndRefreshTokens = (userId) => {
+  const accessToken = generateAccessToken(userId);
+  const refreshToken = generateRefreshToken(userId);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
+  generateAccessAndRefreshTokens,
 };
