@@ -83,17 +83,12 @@ router.post("/login", async (req, res) => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    // const salt = await bcrypt.genSalt();
-    // const resetTokenHashed = await bcrypt.hash(refreshToken, salt);
+    const newRt = new RefreshToken({
+      uid: user._id,
+      refreshToken: refreshToken,
+    });
 
-    // console.log(resetTokenHashed);
-
-    // const newRt = new RefreshToken({
-    //   uid: user._id,
-    //   refreshToken: resetTokenHashed,
-    // });
-
-    // const savedRt = await newRt.save();
+    const savedRt = await newRt.save();
 
     res.json({
       accessToken,

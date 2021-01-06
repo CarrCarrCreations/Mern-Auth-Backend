@@ -106,12 +106,9 @@ router.post("/login", async (req, res) => {
     const accessToken = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
 
-    const salt = await bcrypt.genSalt();
-    const resetTokenHashed = await bcrypt.hash(refreshToken, salt);
-
     const newRt = new RefreshToken({
       uid: user._id,
-      refreshToken: resetTokenHashed,
+      refreshToken: refreshToken,
     });
 
     const savedRt = await newRt.save();
@@ -146,16 +143,13 @@ router.post("/token", async (req, res) => {
     .id;
 
   // Check if refresh token actually exists otherwise throw unauthorized error
-  // DB that contains only refresh tokens
-  const matchedTokens = await RefreshToken.find({ uid: userId });
-
-  let matchedCounter = 0;
-  matchedTokens.map(async (element) => {
-    const response = bcrypt.compare(refreshToken, element.refreshToken);
-    if (response) matchedCounter += 1;
+  // DB contains only active refresh tokens
+  const matchedToken = await RefreshToken.findOne({
+    uid: userId,
+    refreshToken,
   });
 
-  if (matchedCounter > 0) {
+  if (matchedToken) {
     jwt.verify(
       refreshToken,
       process.env.JWT_REFRESH_TOKEN_SECRET,
