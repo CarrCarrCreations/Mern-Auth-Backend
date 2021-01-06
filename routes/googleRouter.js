@@ -103,4 +103,35 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/register", async (req, res) => {
+  try {
+    let { email } = req.body;
+
+    // Validate
+    if (!email)
+      return res.status(400).json({
+        msg: "Not all fields have been entered",
+      });
+
+    const existingUser = await User.findOne({
+      email: email,
+    });
+
+    if (existingUser)
+      return res.status(400).json({
+        msg: "An account with this email already exists.",
+      });
+
+    //Save the user
+    const newUser = new User({
+      email,
+    });
+
+    const savedUser = await newUser.save();
+    res.json(savedUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
