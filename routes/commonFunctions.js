@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
-const RefreshToken = require("../models/refreshTokenModel");
-const User = require("../models/userModel");
+const {
+  findUserByEmail,
+  createUserWithEmail,
+} = require("../repository/UserRepository");
+const { saveRefreshToken } = require("../repository/RefreshTokenRepository");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -30,42 +33,6 @@ const generateAccessAndRefreshTokens = (userId) => {
     accessToken,
     refreshToken,
   };
-};
-
-const saveRefreshToken = async (uid, refreshToken) => {
-  const newRt = new RefreshToken({
-    uid,
-    refreshToken: refreshToken,
-  });
-
-  await newRt
-    .save()
-    .then((response) => response)
-    .catch((err) => {
-      throw err.message;
-    });
-};
-
-const findUserByEmail = async (email) => {
-  const user = await User.findOne(
-    {
-      email: email,
-    },
-    (err, res) => {
-      if (err) throw err.message;
-      return res;
-    }
-  );
-
-  return user;
-};
-
-const createUserWithEmail = async (email) => {
-  const newUser = new User({
-    email,
-  });
-
-  return await newUser.save();
 };
 
 const login = async (email) => {
@@ -111,11 +78,6 @@ const register = async (email) => {
 };
 
 module.exports = {
-  generateAccessToken,
-  generateRefreshToken,
-  generateAccessAndRefreshTokens,
-  saveRefreshToken,
-  findUserByEmail,
   login,
   register,
 };
