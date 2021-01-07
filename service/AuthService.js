@@ -80,4 +80,5 @@ const register = async (email) => {
 module.exports = {
   login,
   register,
+  generateAccessAndRefreshTokens,
 };

@@ -1,5 +1,14 @@
 const User = require("./models/userModel");
 
+const findUserById = async (id) => {
+  const user = await User.findById(id, (err, res) => {
+    if (err) throw err.message;
+    return res;
+  });
+
+  return user;
+};
+
 const findUserByEmail = async (email) => {
   const user = await User.findOne(
     {
@@ -23,6 +32,7 @@ const createUserWithEmail = async (email) => {
 };
 
 module.exports = {
+  findUserById,
   findUserByEmail,
   createUserWithEmail,
 };

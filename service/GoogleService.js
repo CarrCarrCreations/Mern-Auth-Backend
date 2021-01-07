@@ -43,7 +43,5 @@ const getGoogleUser = async (code, redirectLocation) => {
 };
 
 module.exports = {
-  getGoogleUserInfo,
-  getGoogleAccessToken,
   getGoogleUser,
 };
