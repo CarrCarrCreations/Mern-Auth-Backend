@@ -1,7 +1,5 @@
 const router = require("express").Router();
-const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
-const User = require("../repository/models/userModel");
 const {
   register,
   login,
