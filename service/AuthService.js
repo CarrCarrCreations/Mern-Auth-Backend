@@ -200,6 +200,23 @@ const refreshTokenIsValid = async (refreshToken) => {
   const user = await findUserById(verified.id);
   if (!user) return false;
 
+  // Verify Refresh Token is in the active DB
+
+  return true;
+};
+
+const accessTokenIsValid = async (accessToken) => {
+  // If no token exists, return false
+  if (!accessToken) return false;
+
+  // If token cannot be verified against JWT_SECRET return false
+  const verified = jwt.verify(accessToken, process.env.JWT_ACCESS_TOKEN_SECRET);
+  if (!verified) return false;
+
+  // Verify that the userId exists in DB given in the JWT token
+  const user = await findUserById(verified.id);
+  if (!user) return false;
+
   return true;
 };
 
@@ -211,4 +228,5 @@ module.exports = {
   deleteUser,
   refreshAccessToken,
   refreshTokenIsValid,
+  accessTokenIsValid,
 };
