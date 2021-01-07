@@ -46,9 +46,18 @@ const createNativeUser = async (email, passwordHash) => {
   return savedUser;
 };
 
+const findByIdAndDelete = async (uid) => {
+  const deletedUser = await User.findByIdAndDelete(uid, (err, res) => {
+    if (err) throw err.message;
+    return res;
+  });
+  res.json(deletedUser);
+};
+
 module.exports = {
   findUserById,
   findUserByEmail,
   createUserWithEmail,
   createNativeUser,
+  findByIdAndDelete,
 };

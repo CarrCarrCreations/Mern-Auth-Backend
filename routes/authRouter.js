@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../repository/models/userModel");
 const RefreshToken = require("../repository/models/refreshTokenModel");
-const { register, login } = require("../service/AuthService");
+const { register, login, deleteUser } = require("../service/AuthService");
 
 router.post("/register", async (req, res) => {
   try {
@@ -37,7 +37,7 @@ router.post("/login", async (req, res) => {
 
 router.delete("/delete", auth, async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.user.id);
+    const deletedUser = await deleteUser(req.user.id);
     res.json(deletedUser);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -145,8 +145,14 @@ const register = async (service, email, password, passwordCheck) => {
   }
 };
 
+const deleteUser = async (uid) => {
+  const deletedUser = await User.findByIdAndDelete(uid);
+  return deletedUser;
+};
+
 module.exports = {
   login,
   register,
   generateAccessAndRefreshTokens,
+  deleteUser,
 };
