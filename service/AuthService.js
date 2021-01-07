@@ -142,7 +142,6 @@ const register = async (service, email, password, passwordCheck) => {
           return nativeUser;
         }
       );
-      console.log(savedUser);
       return savedUser;
     }
     default: {
