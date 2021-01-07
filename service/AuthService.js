@@ -8,6 +8,7 @@ const {
 const {
   saveRefreshToken,
   findByIdAndRefreshToken,
+  deleteAllUserRefreshTokens,
 } = require("../repository/RefreshTokenRepository");
 
 const generateAccessToken = (userID) => {
@@ -175,9 +176,18 @@ const refreshAccessToken = async (refreshToken) => {
   } else throw "No refresh token in database for current user";
 };
 
+const logout = async (uid) => {
+  try {
+    return await deleteAllUserRefreshTokens(uid);
+  } catch (err) {
+    throw err.message;
+  }
+};
+
 module.exports = {
   login,
   register,
+  logout,
   generateAccessAndRefreshTokens,
   deleteUser,
   refreshAccessToken,

@@ -29,7 +29,16 @@ const findByIdAndRefreshToken = async (uid, refreshToken) => {
   return token;
 };
 
+const deleteAllUserRefreshTokens = async (uid) => {
+  // Delete all refresh tokens for the user in the DB
+  return await RefreshToken.deleteMany({ uid: uid }, (err, res) => {
+    if (err) throw err.message;
+    return res;
+  });
+};
+
 module.exports = {
   saveRefreshToken,
   findByIdAndRefreshToken,
+  deleteAllUserRefreshTokens,
 };

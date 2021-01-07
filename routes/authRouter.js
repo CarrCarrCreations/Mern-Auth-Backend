@@ -8,6 +8,7 @@ const {
   register,
   login,
   deleteUser,
+  logout,
   refreshAccessToken,
 } = require("../service/AuthService");
 
@@ -60,14 +61,13 @@ router.post("/token", async (req, res) => {
 });
 
 router.post("/logout", auth, async (req, res) => {
-  // Delete all refresh tokens for the user in the DB
-  await RefreshToken.deleteMany({ uid: req.user.id }, (err, result) => {
-    if (err) {
-      res.send(err);
-    } else {
-      res.send(result);
-    }
-  });
+  try {
+    const logoutResponse = await logout(req.user.id);
+
+    res.status(200).json(logoutResponse);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.post("/tokenIsValid", async (req, res) => {
