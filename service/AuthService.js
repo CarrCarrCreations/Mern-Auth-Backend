@@ -4,6 +4,7 @@ const {
   findUserByEmail,
   createUserWithEmail,
   createNativeUser,
+  findUserById,
 } = require("../repository/UserRepository");
 const {
   saveRefreshToken,
@@ -184,6 +185,24 @@ const logout = async (uid) => {
   }
 };
 
+const refreshTokenIsValid = async (refreshToken) => {
+  // If no token exists, return false
+  if (!refreshToken) return false;
+
+  // If token cannot be verified against JWT_SECRET return false
+  const verified = jwt.verify(
+    refreshToken,
+    process.env.JWT_REFRESH_TOKEN_SECRET
+  );
+  if (!verified) return false;
+
+  // Verify that the userId exists in DB given in the JWT token
+  const user = await findUserById(verified.id);
+  if (!user) return false;
+
+  return true;
+};
+
 module.exports = {
   login,
   register,
@@ -191,4 +210,5 @@ module.exports = {
   generateAccessAndRefreshTokens,
   deleteUser,
   refreshAccessToken,
+  refreshTokenIsValid,
 };

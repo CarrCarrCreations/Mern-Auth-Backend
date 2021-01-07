@@ -1,15 +1,14 @@
 const router = require("express").Router();
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../repository/models/userModel");
-const RefreshToken = require("../repository/models/refreshTokenModel");
 const {
   register,
   login,
   deleteUser,
   logout,
   refreshAccessToken,
+  refreshTokenIsValid,
 } = require("../service/AuthService");
 
 router.post("/register", async (req, res) => {
@@ -72,19 +71,9 @@ router.post("/logout", auth, async (req, res) => {
 
 router.post("/tokenIsValid", async (req, res) => {
   try {
-    const token = req.header("x-auth-token");
-    // If no token exists, return false
-    if (!token) return res.json(false);
+    const valid = await refreshTokenIsValid(req.header("x-auth-token"));
 
-    // If token cannot be verified against JWT_SECRET return false
-    const verified = jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET);
-    if (!verified) return res.json(false);
-
-    // Verify that the userId exists in DB given in the JWT token
-    const user = await User.findById(verified.id);
-    if (!user) return res.json(false);
-
-    return res.json(true);
+    return res.status(200).json(valid);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
