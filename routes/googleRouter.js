@@ -40,9 +40,8 @@ router.post("/", async (req, res) => {
       const userInfo = await getGoogleUserInfo(response.data.access_token);
       res.json(userInfo);
     })
-    .catch((error) => {
-      console.log(error.message);
-      res.json(error.message);
+    .catch((err) => {
+      res.status(500).json({ error: err.message });
     });
 });
 
@@ -60,7 +59,7 @@ router.post("/register", async (req, res) => {
     const registeredUser = await register(req.body.email);
     res.status(200).json(registeredUser);
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ error: err.message });
   }
 });
 
