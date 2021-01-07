@@ -5,7 +5,10 @@ const {
   createUserWithEmail,
   createNativeUser,
 } = require("../repository/UserRepository");
-const { saveRefreshToken } = require("../repository/RefreshTokenRepository");
+const {
+  saveRefreshToken,
+  findByIdAndRefreshToken,
+} = require("../repository/RefreshTokenRepository");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -150,9 +153,32 @@ const deleteUser = async (uid) => {
   return deletedUser;
 };
 
+const refreshAccessToken = async (refreshToken) => {
+  if (refreshToken == null) return res.sendStatus(401);
+
+  const userId = await jwt.verify(
+    refreshToken,
+    process.env.JWT_REFRESH_TOKEN_SECRET,
+    (err, user) => {
+      if (err) throw err.message;
+      return user.id;
+    }
+  );
+
+  // Check if refresh token actually exists otherwise throw unauthorized error
+  // DB contains only active refresh tokens
+  const matchedToken = await findByIdAndRefreshToken(userId, refreshToken);
+
+  if (matchedToken) {
+    const accessToken = generateAccessToken(userId);
+    return accessToken;
+  } else throw "No refresh token in database for current user";
+};
+
 module.exports = {
   login,
   register,
   generateAccessAndRefreshTokens,
   deleteUser,
+  refreshAccessToken,
 };

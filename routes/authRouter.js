@@ -4,7 +4,12 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../repository/models/userModel");
 const RefreshToken = require("../repository/models/refreshTokenModel");
-const { register, login, deleteUser } = require("../service/AuthService");
+const {
+  register,
+  login,
+  deleteUser,
+  refreshAccessToken,
+} = require("../service/AuthService");
 
 router.post("/register", async (req, res) => {
   try {
@@ -45,30 +50,13 @@ router.delete("/delete", auth, async (req, res) => {
 });
 
 router.post("/token", async (req, res) => {
-  const refreshToken = req.body.token;
-  if (refreshToken == null) return res.sendStatus(401);
+  try {
+    const accessToken = await refreshAccessToken(req.body.token);
 
-  var userId = jwt.decode(refreshToken, process.env.JWT_REFRESH_TOKEN_SECRET)
-    .id;
-
-  // Check if refresh token actually exists otherwise throw unauthorized error
-  // DB contains only active refresh tokens
-  const matchedToken = await RefreshToken.findOne({
-    uid: userId,
-    refreshToken,
-  });
-
-  if (matchedToken) {
-    jwt.verify(
-      refreshToken,
-      process.env.JWT_REFRESH_TOKEN_SECRET,
-      (err, user) => {
-        if (err) return res.sendStatus(403);
-        const accessToken = generateAccessToken(user.id);
-        res.json(accessToken);
-      }
-    );
-  } else return res.sendStatus(401);
+    return res.status(200).json(accessToken);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.post("/logout", auth, async (req, res) => {

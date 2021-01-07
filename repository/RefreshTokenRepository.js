@@ -14,6 +14,22 @@ const saveRefreshToken = async (uid, refreshToken) => {
     });
 };
 
+const findByIdAndRefreshToken = async (uid, refreshToken) => {
+  const token = await RefreshToken.findOne(
+    {
+      uid,
+      refreshToken,
+    },
+    (err, res) => {
+      if (err) throw err.message;
+      return res;
+    }
+  );
+
+  return token;
+};
+
 module.exports = {
   saveRefreshToken,
+  findByIdAndRefreshToken,
 };
