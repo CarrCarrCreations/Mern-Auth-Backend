@@ -2,13 +2,13 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
-const User = require("../models/userModel");
-const RefreshToken = require("../models/refreshTokenModel");
+const User = require("../repository/models/userModel");
+const RefreshToken = require("../repository/models/refreshTokenModel");
 const {
   generateAccessToken,
   generateRefreshToken,
   generateAccessAndRefreshTokens,
-} = require("./commonFunctions");
+} = require("../service/AuthService");
 
 router.post("/register", async (req, res) => {
   try {

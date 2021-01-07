@@ -1,4 +1,4 @@
-const RefreshToken = require("../models/refreshTokenModel");
+const RefreshToken = require("./models/refreshTokenModel");
 
 const saveRefreshToken = async (uid, refreshToken) => {
   const newRt = new RefreshToken({
