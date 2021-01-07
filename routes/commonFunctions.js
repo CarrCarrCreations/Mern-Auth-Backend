@@ -60,6 +60,14 @@ const findUserByEmail = async (email) => {
   return user;
 };
 
+const createUserWithEmail = async (email) => {
+  const newUser = new User({
+    email,
+  });
+
+  return await newUser.save();
+};
+
 const login = async (email) => {
   try {
     // Validate
@@ -87,6 +95,21 @@ const login = async (email) => {
   }
 };
 
+const register = async (email) => {
+  // Validate
+  if (!email) throw "Not all fields have been entered";
+
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) throw "An account with this email already exists.";
+
+  const savedUser = await createUserWithEmail(email, (err, user) => {
+    if (err) throw err.message;
+    return user;
+  });
+
+  return savedUser;
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
@@ -94,4 +117,5 @@ module.exports = {
   saveRefreshToken,
   findUserByEmail,
   login,
+  register,
 };
