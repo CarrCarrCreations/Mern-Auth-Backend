@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const RefreshToken = require("../models/refreshTokenModel");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -30,8 +31,23 @@ const generateAccessAndRefreshTokens = (userId) => {
   };
 };
 
+const saveRefreshToken = async (uid, refreshToken) => {
+  const newRt = new RefreshToken({
+    uid,
+    refreshToken: refreshToken,
+  });
+
+  await newRt
+    .save()
+    .then((response) => response)
+    .catch((err) => {
+      throw err.message;
+    });
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
   generateAccessAndRefreshTokens,
+  saveRefreshToken,
 };

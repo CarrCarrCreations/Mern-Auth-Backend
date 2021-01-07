@@ -4,9 +4,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const RefreshToken = require("../models/refreshTokenModel");
 const {
-  generateAccessToken,
-  generateRefreshToken,
   generateAccessAndRefreshTokens,
+  saveRefreshToken,
 } = require("./commonFunctions");
 
 const getGoogleUserInfo = async (access_token) => {
@@ -76,12 +75,7 @@ router.post("/login", async (req, res) => {
       user.id
     );
 
-    const newRt = new RefreshToken({
-      uid: user._id,
-      refreshToken: refreshToken,
-    });
-
-    const savedRt = await newRt.save();
+    await saveRefreshToken(user._id, refreshToken);
 
     res.json({
       accessToken,
