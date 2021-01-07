@@ -1,27 +1,18 @@
 const router = require("express").Router();
 const { login, register } = require("../service/AuthService");
-const {
-  getGoogleUserInfo,
-  getGoogleAccessToken,
-} = require("../service/GoogleService");
+const { getGoogleUser } = require("../service/GoogleService");
 
+// Code given by the Google Login Redirect to obtain an access token
+// values: login, register
 router.post("/", async (req, res) => {
   try {
-    // Code given by the Google Login Redirect to obtain an access token
-    const code = req.body.code;
-
-    // either login or register
-    const redirectLocation = req.body.redirectLocation;
-
-    const googleAccessToken = await getGoogleAccessToken(
-      code,
-      redirectLocation
+    const googleUser = await getGoogleUser(
+      req.body.code,
+      req.body.redirectLocation
     );
-    const userInfo = await getGoogleUserInfo(googleAccessToken);
-
-    res.status(200).json(userInfo);
+    res.status(200).json(googleUser);
   } catch (err) {
-    res.status(500).json(err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 

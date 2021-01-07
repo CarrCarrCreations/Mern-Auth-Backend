@@ -34,7 +34,16 @@ const getGoogleAccessToken = async (code, redirectLocation) => {
     });
 };
 
+const getGoogleUser = async (code, redirectLocation) => {
+  if (!code || !redirectLocation) throw "Missing required parameters";
+  const googleAccessToken = await getGoogleAccessToken(code, redirectLocation);
+  const userInfo = await getGoogleUserInfo(googleAccessToken);
+
+  return userInfo;
+};
+
 module.exports = {
   getGoogleUserInfo,
   getGoogleAccessToken,
+  getGoogleUser,
 };
