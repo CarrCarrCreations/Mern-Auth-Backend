@@ -1,16 +1,14 @@
 const router = require("express").Router();
 const auth = require("../middleware/auth");
-const User = require("../models/userModel");
 
-// Since we are using auth, we can get the userId from req.user.id
-// You get all information from the DB based on the currently
-// logged in user. It is all saved in req.user
+// Auth middleware saves logged in users data to req.user
 router.post("/", auth, async (req, res) => {
-  const user = await User.findById(req.user.id);
-  res.json({
-    id: user._id,
-    displayName: user.displayName,
-  });
+  try {
+    const user = await User.findById(req.user.id);
+    return res.status(200).json(user);
+  } catch (err) {
+    return res.status(500).json();
+  }
 });
 
 module.exports = router;

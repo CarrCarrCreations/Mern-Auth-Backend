@@ -2,12 +2,13 @@ const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
-const User = require("../models/userModel");
-const RefreshToken = require("../models/refreshTokenModel");
+const User = require("../repository/models/userModel");
+const RefreshToken = require("../repository/models/refreshTokenModel");
 const {
   generateAccessToken,
   generateRefreshToken,
-} = require("./commonFunctions");
+  generateAccessAndRefreshTokens,
+} = require("../service/AuthService");
 
 router.post("/register", async (req, res) => {
   try {
@@ -87,8 +88,9 @@ router.post("/login", async (req, res) => {
         msg: "Invalid Credentials",
       });
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
+      user.id
+    );
 
     const newRt = new RefreshToken({
       uid: user._id,
