@@ -62,19 +62,48 @@ const login = async (email) => {
   }
 };
 
-const register = async (email) => {
+const register = async (service, email, password, passwordCheck) => {
   // Validate
-  if (!email) throw "Not all fields have been entered";
+  switch (service) {
+    case "google": {
+      if (!email) throw "Not all fields have been entered";
+      break;
+    }
+    case "native": {
+      if (!email || !password || !passwordCheck)
+        throw "Not all fields have been entered";
+
+      if (password.length < 5)
+        throw "The password needs to be at least 5 characters long";
+
+      if (password != passwordCheck)
+        throw "Enter the same password twice for verification";
+      break;
+    }
+    default: {
+      throw "Register service requested does not request";
+    }
+  }
 
   const existingUser = await findUserByEmail(email);
   if (existingUser) throw "An account with this email already exists.";
 
-  const savedUser = await createUserWithEmail(email, (err, user) => {
-    if (err) throw err.message;
-    return user;
-  });
+  switch (service) {
+    case "google": {
+      const savedUser = await createUserWithEmail(email, (err, user) => {
+        if (err) throw err.message;
+        return user;
+      });
 
-  return savedUser;
+      return savedUser;
+    }
+    case "native": {
+      break;
+    }
+    default: {
+      throw "Register service requested does not request";
+    }
+  }
 };
 
 module.exports = {
