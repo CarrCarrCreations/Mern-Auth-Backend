@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const RefreshToken = require("../models/refreshTokenModel");
+const User = require("../models/userModel");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -45,9 +46,24 @@ const saveRefreshToken = async (uid, refreshToken) => {
     });
 };
 
+const findUserByEmail = async (email) => {
+  const user = await User.findOne(
+    {
+      email: email,
+    },
+    (err, res) => {
+      if (err) throw err.message;
+      return res;
+    }
+  );
+
+  return user;
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
   generateAccessAndRefreshTokens,
   saveRefreshToken,
+  findUserByEmail,
 };

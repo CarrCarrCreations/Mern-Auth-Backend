@@ -1,11 +1,10 @@
 const router = require("express").Router();
 const axios = require("axios");
-const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const RefreshToken = require("../models/refreshTokenModel");
 const {
   generateAccessAndRefreshTokens,
   saveRefreshToken,
+  findUserByEmail,
 } = require("./commonFunctions");
 
 const getGoogleUserInfo = async (access_token) => {
@@ -61,18 +60,14 @@ router.post("/login", async (req, res) => {
         msg: "Not all fields have been entered",
       });
 
-    const user = await User.findOne({
-      email: email,
-    });
-
-    // Check if user exists
+    const user = await findUserByEmail(email);
     if (!user)
       return res.status(400).json({
         msg: "Account does not exist",
       });
 
     const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
-      user.id
+      user._id
     );
 
     await saveRefreshToken(user._id, refreshToken);
