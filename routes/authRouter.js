@@ -4,58 +4,21 @@ const jwt = require("jsonwebtoken");
 const auth = require("../middleware/auth");
 const User = require("../repository/models/userModel");
 const RefreshToken = require("../repository/models/refreshTokenModel");
-const {
-  generateAccessToken,
-  generateRefreshToken,
-  generateAccessAndRefreshTokens,
-} = require("../service/AuthService");
+const { register, login } = require("../service/AuthService");
 
 router.post("/register", async (req, res) => {
   try {
     let { email, password, passwordCheck, displayName } = req.body;
 
-    // Validate
-    if (!email || !password || !passwordCheck)
-      return res.status(400).json({
-        msg: "Not all fields have been entered",
-      });
+    const registeredUser = await register(
+      "native",
+      email,
+      password,
+      passwordCheck,
+      displayName
+    );
 
-    if (password.length < 5)
-      return res.status(400).json({
-        msg: "The password needs to be at least 5 characters long",
-      });
-
-    if (password != passwordCheck)
-      return res.status(400).json({
-        msg: "Enter the same password twice for verification",
-      });
-
-    const existingUser = await User.findOne({
-      email: email,
-    });
-
-    if (existingUser)
-      return res.status(400).json({
-        msg: "An account with this email already exists.",
-      });
-
-    if (!displayName) displayName = email;
-
-    // Hash the password, NEVER save pure password in database
-    const salt = await bcrypt.genSalt();
-    await bcrypt.hash(password, salt, async (err, passwordHash) => {
-      if (err) return res.json(err);
-
-      //Save the user
-      const newUser = new User({
-        email,
-        password: passwordHash,
-        displayName,
-      });
-
-      const savedUser = await newUser.save();
-      res.json(savedUser);
-    });
+    res.status(200).json(registeredUser);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -63,52 +26,10 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // Validate
-    if (!email || !password)
-      return res.status(400).json({
-        msg: "Not all fields have been entered",
-      });
-
-    const user = await User.findOne({
-      email: email,
-    });
-
-    // Check if user exists
-    if (!user)
-      return res.status(400).json({
-        msg: "No account with this email has been registered",
-      });
-
-    // Validate correct password is given
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(400).json({
-        msg: "Invalid Credentials",
-      });
-
-    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
-      user.id
-    );
-
-    const newRt = new RefreshToken({
-      uid: user._id,
-      refreshToken: refreshToken,
-    });
-
-    const savedRt = await newRt.save();
-
-    res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        id: user._id,
-        displayName: user.displayName,
-      },
-    });
+    const user = await login("native", req.body.email, req.body.password);
+    res.status(200).json(user);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err });
   }
 });
 
@@ -175,7 +96,6 @@ router.post("/tokenIsValid", async (req, res) => {
 
     return res.json(true);
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -197,7 +117,6 @@ router.post("/accessTokenIsValid", async (req, res) => {
 
     return res.json(true);
   } catch (err) {
-    console.log(err);
     res.status(500).json({ error: err.message });
   }
 });

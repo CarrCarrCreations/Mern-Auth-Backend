@@ -1,7 +1,9 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const {
   findUserByEmail,
   createUserWithEmail,
+  createNativeUser,
 } = require("../repository/UserRepository");
 const { saveRefreshToken } = require("../repository/RefreshTokenRepository");
 
@@ -35,13 +37,34 @@ const generateAccessAndRefreshTokens = (userId) => {
   };
 };
 
-const login = async (email) => {
+const login = async (service, email, password) => {
   try {
     // Validate
-    if (!email) throw "Not all fields have been entered";
+    switch (service) {
+      case "google": {
+        if (!email) throw "Not all fields have been entered";
+        break;
+      }
+      case "native": {
+        if (!email || !password) throw "Not all fields have been entered";
+        break;
+      }
+      default: {
+        throw "Login service requested does not request";
+      }
+    }
 
     const user = await findUserByEmail(email);
     if (!user) throw "Account does not exist";
+
+    if (service == "native") {
+      // Validate correct password is given
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        return res.status(400).json({
+          msg: "Invalid Credentials",
+        });
+    }
 
     const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
       user._id
@@ -88,6 +111,7 @@ const register = async (service, email, password, passwordCheck) => {
   const existingUser = await findUserByEmail(email);
   if (existingUser) throw "An account with this email already exists.";
 
+  // Save the new user
   switch (service) {
     case "google": {
       const savedUser = await createUserWithEmail(email, (err, user) => {
@@ -98,7 +122,22 @@ const register = async (service, email, password, passwordCheck) => {
       return savedUser;
     }
     case "native": {
-      break;
+      // Hash the password, NEVER save pure password in database
+      const salt = await bcrypt.genSalt();
+      savedUser = await bcrypt.hash(
+        password,
+        salt,
+        async (err, passwordHash) => {
+          if (err) {
+            throw err.message;
+          }
+
+          const nativeUser = createNativeUser(email, passwordHash);
+          return nativeUser;
+        }
+      );
+      console.log(savedUser);
+      return savedUser;
     }
     default: {
       throw "Register service requested does not request";
