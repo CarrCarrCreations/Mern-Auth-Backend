@@ -201,6 +201,8 @@ const refreshTokenIsValid = async (refreshToken) => {
   if (!user) return false;
 
   // Verify Refresh Token is in the active DB
+  const matchedToken = await findByIdAndRefreshToken(verified.id, refreshToken);
+  if (!matchedToken) return false;
 
   return true;
 };
