@@ -60,10 +60,38 @@ const findUserByEmail = async (email) => {
   return user;
 };
 
+const login = async (email) => {
+  try {
+    // Validate
+    if (!email) throw "Not all fields have been entered";
+
+    const user = await findUserByEmail(email);
+    if (!user) throw "Account does not exist";
+
+    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
+      user._id
+    );
+
+    await saveRefreshToken(user._id, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user._id,
+        displayName: user.displayName,
+      },
+    };
+  } catch (err) {
+    throw err.message;
+  }
+};
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
   generateAccessAndRefreshTokens,
   saveRefreshToken,
   findUserByEmail,
+  login,
 };

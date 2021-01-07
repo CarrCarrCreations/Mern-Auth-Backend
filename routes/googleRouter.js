@@ -5,6 +5,7 @@ const {
   generateAccessAndRefreshTokens,
   saveRefreshToken,
   findUserByEmail,
+  login,
 } = require("./commonFunctions");
 
 const getGoogleUserInfo = async (access_token) => {
@@ -52,34 +53,8 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email } = req.body;
-
-    // Validate
-    if (!email)
-      return res.status(400).json({
-        msg: "Not all fields have been entered",
-      });
-
-    const user = await findUserByEmail(email);
-    if (!user)
-      return res.status(400).json({
-        msg: "Account does not exist",
-      });
-
-    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
-      user._id
-    );
-
-    await saveRefreshToken(user._id, refreshToken);
-
-    res.json({
-      accessToken,
-      refreshToken,
-      user: {
-        id: user._id,
-        displayName: user.displayName,
-      },
-    });
+    const user = await login(req.body.email);
+    res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
