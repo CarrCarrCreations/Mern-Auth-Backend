@@ -11,6 +11,7 @@ const {
   findByIdAndRefreshToken,
   deleteAllUserRefreshTokens,
 } = require("../repository/RefreshTokenRepository");
+const { findByIdAndDelete } = require("../repository/models/userModel");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -151,7 +152,7 @@ const register = async (service, email, password, passwordCheck) => {
 };
 
 const deleteUser = async (uid) => {
-  const deletedUser = await User.findByIdAndDelete(uid);
+  const deletedUser = await findByIdAndDelete(uid, (err, res));
   return deletedUser;
 };
 

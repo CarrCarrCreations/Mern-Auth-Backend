@@ -51,7 +51,7 @@ const findByIdAndDelete = async (uid) => {
     if (err) throw err.message;
     return res;
   });
-  res.json(deletedUser);
+  return deletedUser;
 };
 
 module.exports = {
