@@ -34,12 +34,13 @@ app.use(morgan("dev"));
 
 // Setup routes
 app.use("/", require("./routes/authRouter"));
+app.use("/users", require("./routes/userRouter"));
 app.use("/google", require("./routes/googleRouter"));
 
 // endpoint not found response
 app.use((req, res, next) => {
   const error = new Error("Not Found");
-  error.status("404");
+  res.status("404");
   next(error);
 });
 
