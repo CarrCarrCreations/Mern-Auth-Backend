@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const db = require("./repository/mongooseConfig");
 require("dotenv").config();
@@ -12,11 +11,11 @@ app.use(cors());
 const morgan = require("morgan");
 const PORT = process.env.PORT || 4000;
 
+db.connect();
+
 app.listen(PORT, () => {
   console.log(`The server has started on port: ${PORT}`);
 });
-
-db.connect();
 
 // set morgan for routing
 app.use(morgan("dev"));
@@ -41,3 +40,5 @@ app.use((error, req, res, next) => {
     },
   });
 });
+
+module.exports = app;
