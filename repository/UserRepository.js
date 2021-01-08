@@ -31,8 +31,33 @@ const createUserWithEmail = async (email) => {
   return await newUser.save();
 };
 
+const createNativeUser = async (email, passwordHash) => {
+  //Save the user
+  const newUser = new User({
+    email,
+    password: passwordHash,
+  });
+
+  const savedUser = await newUser.save((err, res) => {
+    if (err) throw err.message;
+    return res;
+  });
+
+  return savedUser;
+};
+
+const findByIdAndDelete = async (uid) => {
+  const deletedUser = await User.findByIdAndDelete(uid, (err, res) => {
+    if (err) throw err.message;
+    return res;
+  });
+  return deletedUser;
+};
+
 module.exports = {
   findUserById,
   findUserByEmail,
   createUserWithEmail,
+  createNativeUser,
+  findByIdAndDelete,
 };
