@@ -14,13 +14,12 @@ router.post("/register", async (req, res) => {
   try {
     let { email, password, passwordCheck, displayName } = req.body;
 
-    const registeredUser = await register(
-      "native",
+    const registeredUser = await register("native", {
       email,
       password,
       passwordCheck,
-      displayName
-    );
+      displayName,
+    });
 
     res.status(200).json(registeredUser);
   } catch (err) {

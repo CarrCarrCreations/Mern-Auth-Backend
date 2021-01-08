@@ -92,9 +92,9 @@ const login = async (service, email, password) => {
   }
 };
 
-const register = async (service, email, password, passwordCheck) => {
+const register = async (service, user) => {
   try {
-    const newUser = createUser({ service, email, password, passwordCheck });
+    const newUser = createUser(service, user);
     return newUser;
   } catch (error) {
     throw error.message;

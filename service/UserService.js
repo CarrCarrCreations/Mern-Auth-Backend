@@ -15,8 +15,8 @@ const findUser = async (id) => {
   };
 };
 
-const createUser = async (user) => {
-  const { service, email, password, passwordCheck } = user;
+const createUser = async (service, user) => {
+  const { email, password, passwordCheck } = user;
 
   // Validate
   switch (service) {
