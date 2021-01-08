@@ -10,15 +10,16 @@ const findUserById = async (id) => {
 };
 
 const findUserByEmail = async (email) => {
-  const user = await User.findOne(
-    {
-      email: email,
-    },
-    (err, res) => {
-      if (err) throw err.message;
+  const user = await User.findOne({
+    email: email,
+  })
+    .exec()
+    .then((res) => {
       return res;
-    }
-  );
+    })
+    .catch((error) => {
+      throw error;
+    });
 
   return user;
 };

@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const auth = require("../middleware/auth");
-const { findUser } = require("../service/UserService");
+const { findUser, createUser } = require("../service/UserService");
 
 // Return the logged in user
 router.get("/", auth, async (req, res) => {
@@ -13,6 +13,17 @@ router.get("/", auth, async (req, res) => {
 });
 
 // Create new User
-router.post("/", auth, async (req, res) => {});
+router.post("/", auth, async (req, res) => {
+  let { service, email, password, passwordCheck, displayName } = req.body;
+
+  const registeredUser = await createUser(service, {
+    email,
+    password,
+    passwordCheck,
+    displayName,
+  });
+
+  res.status(200).json(registeredUser);
+});
 
 module.exports = router;
