@@ -12,6 +12,7 @@ const {
   deleteAllUserRefreshTokens,
 } = require("../repository/RefreshTokenRepository");
 const { findByIdAndDelete } = require("../repository/models/userModel");
+const { createUser } = require("./UserService");
 
 const generateAccessToken = (userID) => {
   return jwt.sign(
@@ -92,61 +93,11 @@ const login = async (service, email, password) => {
 };
 
 const register = async (service, email, password, passwordCheck) => {
-  // Validate
-  switch (service) {
-    case "google": {
-      if (!email) throw "Not all fields have been entered";
-      break;
-    }
-    case "native": {
-      if (!email || !password || !passwordCheck)
-        throw "Not all fields have been entered";
-
-      if (password.length < 5)
-        throw "The password needs to be at least 5 characters long";
-
-      if (password != passwordCheck)
-        throw "Enter the same password twice for verification";
-      break;
-    }
-    default: {
-      throw "Register service requested does not request";
-    }
-  }
-
-  const existingUser = await findUserByEmail(email);
-  if (existingUser) throw "An account with this email already exists.";
-
-  // Save the new user
-  switch (service) {
-    case "google": {
-      const savedUser = await createUserWithEmail(email, (err, user) => {
-        if (err) throw err.message;
-        return user;
-      });
-
-      return savedUser;
-    }
-    case "native": {
-      // Hash the password, NEVER save pure password in database
-      const salt = await bcrypt.genSalt();
-      savedUser = await bcrypt.hash(
-        password,
-        salt,
-        async (err, passwordHash) => {
-          if (err) {
-            throw err.message;
-          }
-
-          const nativeUser = createNativeUser(email, passwordHash);
-          return nativeUser;
-        }
-      );
-      return savedUser;
-    }
-    default: {
-      throw "Register service requested does not request";
-    }
+  try {
+    const newUser = createUser({ service, email, password, passwordCheck });
+    return newUser;
+  } catch (error) {
+    throw error.message;
   }
 };
 
