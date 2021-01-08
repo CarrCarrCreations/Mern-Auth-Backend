@@ -2,9 +2,6 @@ const router = require("express").Router();
 const auth = require("../middleware/auth");
 const { findUser } = require("../service/UserService");
 
-// Create new User
-router.post("/", auth, async (req, res) => {});
-
 // Return the logged in user
 router.get("/", auth, async (req, res) => {
   try {
@@ -14,5 +11,8 @@ router.get("/", auth, async (req, res) => {
     return res.status(500).json(err);
   }
 });
+
+// Create new User
+router.post("/", auth, async (req, res) => {});
 
 module.exports = router;
