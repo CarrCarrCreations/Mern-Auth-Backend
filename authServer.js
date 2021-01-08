@@ -8,6 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const morgan = require("morgan");
 const PORT = 4000;
 
 app.listen(PORT, () => {
@@ -28,6 +29,25 @@ mongoose.connect(
   }
 );
 
+// set morgan for routing
+app.use(morgan("dev"));
+
 // Setup routes
 app.use("/", require("./routes/authRouter"));
 app.use("/google", require("./routes/googleRouter"));
+
+// endpoint not found response
+app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  error.status("404");
+  next(error);
+});
+
+// Global error handler
+app.use((error, req, res, next) => {
+  res.status(error.status || 500).json({
+    error: {
+      message: error.message,
+    },
+  });
+});
