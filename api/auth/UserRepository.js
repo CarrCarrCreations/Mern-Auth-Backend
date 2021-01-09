@@ -55,10 +55,46 @@ const findByIdAndDelete = async (uid) => {
   return deletedUser;
 };
 
+const saveUser = (service, user) => {
+  const { email, password } = user;
+
+  switch (service) {
+    case "google": {
+      const savedUser = await createUserWithEmail(email)
+      .exec()
+      .then(user => {return user})
+      .catch(error => {throw error})
+
+      return savedUser;
+    }
+    case "native": {
+      // Hash the password, NEVER save pure password in database
+      const salt = await bcrypt.genSalt();
+      savedUser = await bcrypt.hash(
+        password,
+        salt,
+        async (err, passwordHash) => {
+          if (err) {
+            throw err.message;
+          }
+
+          const nativeUser = createNativeUser(email, passwordHash);
+          return nativeUser;
+        }
+      );
+      return savedUser;
+    }
+    default: {
+      throw "Register service requested does not request";
+    }
+  }
+}
+
 module.exports = {
   findUserById,
   findUserByEmail,
   createUserWithEmail,
   createNativeUser,
   findByIdAndDelete,
+  saveUser
 };
