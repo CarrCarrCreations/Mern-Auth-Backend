@@ -7,18 +7,20 @@ const {
 } = require("./authServiceHelper");
 
 const findUserById = (UserRepository) => async (id) => {
-  const user = await UserRepository.findUserBy(
-    {
-      field: "_id",
-      valid: id,
-    },
-    (error, res) => {
-      if (error) throw error;
-      return res;
-    }
-  );
+  const user = await UserRepository.findUserById(id)
+    .then((user) => {
+      return user;
+    })
+    .catch((error) => {
+      throw error;
+    });
 
-  return user;
+  return {
+    user: {
+      id: user.id,
+      email: user.email,
+    },
+  };
 };
 
 const registerUser = (UserRepository) => async (service, user) => {
@@ -126,7 +128,7 @@ const loginUser = (UserRepository) => async (service, user) => {
 
 module.exports = (UserRepository) => {
   return {
-    findUser: findUserById(UserRepository),
+    findUserById: findUserById(UserRepository),
     register: registerUser(UserRepository),
     loginUser: loginUser(UserRepository),
   };

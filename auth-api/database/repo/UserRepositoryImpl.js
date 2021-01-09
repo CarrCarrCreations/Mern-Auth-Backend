@@ -15,6 +15,11 @@ const createUser = (newUserFn) => async (email, passwordHash) => {
   return savedUser;
 };
 
+const findUserById = (User) => async (id) => {
+  const user = User.findById(id);
+  return user;
+};
+
 const findUserBy = (User) => async ({ field, value }) => {
   const user = User.find()
     .where(field)
@@ -40,6 +45,7 @@ const findUserByIdAndDelete = (User) => async (uid) => {
 module.exports = (User, newUserFn) => {
   return {
     findUserBy: findUserBy(User),
+    findUserById: findUserById(User),
     findUserByIdAndDelete: findUserByIdAndDelete(User),
     createUser: createUser(newUserFn),
   };
