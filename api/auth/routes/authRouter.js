@@ -5,14 +5,14 @@ router.post("/register", async (req, res, next) => {
   try {
     let { service, email, password, passwordCheck, displayName } = req.body;
 
-    const registeredUser = await AuthService.register(service, {
+    const registeredUserResponse = await AuthService.register(service, {
       email,
       password,
       passwordCheck,
       displayName,
     });
 
-    res.status(200).json(registeredUser);
+    res.status(200).json(registeredUserResponse);
   } catch (error) {
     next(error);
   }
