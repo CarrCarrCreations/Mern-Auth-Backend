@@ -1,3 +1,5 @@
+const { Error } = require("../../error");
+
 const findUserById = (UserRepository) => async (id) => {
   const user = await UserRepository.findUserById(id, (err, res) => {
     if (err) throw err.message;
@@ -9,8 +11,10 @@ const findUserById = (UserRepository) => async (id) => {
 
 const registerUser = (UserRepository) => async (service, user) => {
   try {
-    const { valid, messages } = validateRequest(service, user);
-    if (!valid) throw messages;
+    const { valid, message: errorMessage } = validateRequest(service, user);
+    if (!valid) {
+      throw Error(errorMessage, 400);
+    }
 
     const userExists = await UserRepository.findUserByEmail(user.email);
     if (userExists) throw "An account with this email already exists.";
@@ -25,45 +29,41 @@ const registerUser = (UserRepository) => async (service, user) => {
 const validateRequest = (service, user) => {
   const { email, password, passwordCheck } = user;
 
-  let valid = true;
-  let messages = [];
-
   switch (service) {
     case "google": {
       if (!email) {
-        valid = false;
-        messages.push("Not all fields have been entered");
-        break;
+        return { valid: false, message: "Not all fields have been entered" };
       }
     }
     case "native": {
       if (!email || !password || !passwordCheck) {
-        valid = false;
-        messages.push("Not all fields have been entered");
-        break;
+        return { valid: false, message: "Not all fields have been entered" };
       }
 
       if (password.length < 5) {
-        valid = false;
-        messages.push("The password needs to be at least 5 characters long");
-        break;
+        return {
+          valid: false,
+          message: "The password needs to be at least 5 characters long",
+        };
       }
 
       if (password != passwordCheck) {
-        valid = false;
-        messages.push("Enter the same password twice for verification");
-        break;
+        return {
+          valid: false,
+          message: "Enter the same password twice for verification",
+        };
       }
       break;
     }
     default: {
-      valid = false;
-      messages.push("Registering service requested does not exist");
-      break;
+      return {
+        valid: false,
+        message: "Registering service requested does not exist",
+      };
     }
   }
 
-  return { valid, messages };
+  return { valid: true, message: "" };
 };
 
 module.exports = (UserRepository) => {

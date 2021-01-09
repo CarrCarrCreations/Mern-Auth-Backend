@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 const AuthRouter = require("./api/auth/routes/authRouter");
+const { errorHandler } = require("./error");
 // const GoogleRouter = require("./routes/googleRouter");
 // const UserRouter = require("./routes/userRouter");
 
@@ -65,12 +66,6 @@ app.use((req, res, next) => {
 });
 
 // Global error handler
-app.use((error, req, res, next) => {
-  res.status(error.status || 500).json({
-    error: {
-      message: error.message,
-    },
-  });
-});
+app.use(errorHandler);
 
 module.exports = app;
