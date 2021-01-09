@@ -1,8 +1,8 @@
 const { Error } = require("../../error");
 
 const findUserById = (UserRepository) => async (id) => {
-  const user = await UserRepository.findUserById(id, (err, res) => {
-    if (err) throw err.message;
+  const user = await UserRepository.findUserById(id, (error, res) => {
+    if (error) throw error;
     return res;
   });
 
@@ -17,7 +17,7 @@ const registerUser = (UserRepository) => async (service, user) => {
     }
 
     const userExists = await UserRepository.findUserByEmail(user.email);
-    if (userExists) throw "An account with this email already exists.";
+    if (userExists) throw Error("An account with this email already exists.");
 
     const savedUserResponse = await UserRepository.saveUser(service, user);
     return savedUserResponse;

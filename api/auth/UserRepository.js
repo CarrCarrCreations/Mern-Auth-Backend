@@ -2,8 +2,8 @@ const bcrypt = require("bcryptjs");
 const User = require("./userModel");
 
 const findUserById = async (id) => {
-  const user = await User.findById(id, (err, res) => {
-    if (err) throw err.message;
+  const user = await User.findById(id, (error, res) => {
+    if (error) throw error;
     return res;
   });
 
@@ -53,8 +53,8 @@ const createNativeUser = async (email, passwordHash) => {
 };
 
 const findByIdAndDelete = async (uid) => {
-  const deletedUser = await User.findByIdAndDelete(uid, (err, res) => {
-    if (err) throw err.message;
+  const deletedUser = await User.findByIdAndDelete(uid, (error, res) => {
+    if (error) throw error;
     return res;
   });
   return deletedUser;
