@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const User = require("./userModel");
 
 const findUserById = async (id) => {
@@ -39,10 +40,14 @@ const createNativeUser = async (email, passwordHash) => {
     password: passwordHash,
   });
 
-  const savedUser = await newUser.save((err, res) => {
-    if (err) throw err.message;
-    return res;
-  });
+  const savedUser = await newUser
+    .save()
+    .then((user) => {
+      return user;
+    })
+    .catch((error) => {
+      throw error;
+    });
 
   return savedUser;
 };
@@ -72,21 +77,19 @@ const saveUser = async (service, user) => {
       return savedUser;
     }
     case "native": {
-      // Hash the password, NEVER save pure password in database
-      const salt = await bcrypt.genSalt();
-      savedUser = await bcrypt.hash(
-        password,
-        salt,
-        async (err, passwordHash) => {
-          if (err) {
-            throw err.message;
-          }
+      try {
+        // Hash the password, NEVER save pure password in database
+        const salt = await bcrypt.genSalt();
+        await bcrypt.hash(password, salt, (error, res) => {
+          if (error) throw error;
 
-          const nativeUser = createNativeUser(email, passwordHash);
-          return nativeUser;
-        }
-      );
-      return savedUser;
+          const savedUser = createNativeUser(email, res);
+          return savedUser;
+        });
+        return { message: "User registered successfully" };
+      } catch (error) {
+        throw error;
+      }
     }
     default: {
       throw "Register service requested does not request";

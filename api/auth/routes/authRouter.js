@@ -13,8 +13,8 @@ router.post("/register", async (req, res) => {
     });
 
     res.status(200).json(registeredUser);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error });
   }
 });
 

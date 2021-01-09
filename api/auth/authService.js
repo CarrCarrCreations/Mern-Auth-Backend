@@ -12,11 +12,11 @@ const registerUser = (UserRepository) => async (service, user) => {
     const { valid, messages } = validateRequest(service, user);
     if (!valid) throw messages;
 
-    const userExists = await UserRepository.findUserByEmail(email);
+    const userExists = await UserRepository.findUserByEmail(user.email);
     if (userExists) throw "An account with this email already exists.";
 
-    const savedUser = await UserRepository.saveUser(service, user);
-    return savedUser;
+    const savedUserResponse = await UserRepository.saveUser(service, user);
+    return savedUserResponse;
   } catch (error) {
     throw error;
   }
@@ -54,15 +54,16 @@ const validateRequest = (service, user) => {
         messages.push("Enter the same password twice for verification");
         break;
       }
+      break;
     }
     default: {
       valid = false;
-      message.push("Registering service requested does not exist");
+      messages.push("Registering service requested does not exist");
       break;
     }
   }
 
-  return { valid, message };
+  return { valid, messages };
 };
 
 module.exports = (UserRepository) => {
