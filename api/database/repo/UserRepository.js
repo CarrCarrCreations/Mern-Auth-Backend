@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
-const User = require("./userModel");
-const Error = require("../../error");
+const User = require("../model/userModel");
+const Error = require("../../../error");
 
 const findUserById = async (id) => {
   const user = await User.findById(id, (error, res) => {
