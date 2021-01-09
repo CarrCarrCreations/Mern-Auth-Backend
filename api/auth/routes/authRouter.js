@@ -3,9 +3,9 @@ const AuthService = require("../../auth");
 
 router.post("/register", async (req, res, next) => {
   try {
-    let { email, password, passwordCheck, displayName } = req.body;
+    let { service, email, password, passwordCheck, displayName } = req.body;
 
-    const registeredUser = await AuthService.register("native", {
+    const registeredUser = await AuthService.register(service, {
       email,
       password,
       passwordCheck,
