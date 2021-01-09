@@ -67,7 +67,7 @@ const validateRequest = (service, user) => {
 
 module.exports = (UserRepository) => {
   return {
-    findUser: findUserById(UserRepository)(id),
-    register: registerUser(UserRepository)(service, user),
+    findUser: findUserById(UserRepository),
+    register: registerUser(UserRepository),
   };
 };

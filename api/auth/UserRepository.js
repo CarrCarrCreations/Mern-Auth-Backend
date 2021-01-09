@@ -55,15 +55,19 @@ const findByIdAndDelete = async (uid) => {
   return deletedUser;
 };
 
-const saveUser = (service, user) => {
+const saveUser = async (service, user) => {
   const { email, password } = user;
 
   switch (service) {
     case "google": {
       const savedUser = await createUserWithEmail(email)
-      .exec()
-      .then(user => {return user})
-      .catch(error => {throw error})
+        .exec()
+        .then((user) => {
+          return user;
+        })
+        .catch((error) => {
+          throw error;
+        });
 
       return savedUser;
     }
@@ -88,7 +92,7 @@ const saveUser = (service, user) => {
       throw "Register service requested does not request";
     }
   }
-}
+};
 
 module.exports = {
   findUserById,
@@ -96,5 +100,5 @@ module.exports = {
   createUserWithEmail,
   createNativeUser,
   findByIdAndDelete,
-  saveUser
+  saveUser,
 };

@@ -1,13 +1,13 @@
 const express = require("express");
 const cors = require("cors");
-const db = require("./repository/mongooseConfig");
+const db = require("./configs/mongoose");
 const { v4: uuid4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
 
-const AuthRouter = require("./routes/authRouter");
-const GoogleRouter = require("./routes/googleRouter");
-const UserRouter = require("./routes/userRouter");
+const AuthRouter = require("./api/auth/routes/authRouter");
+// const GoogleRouter = require("./routes/googleRouter");
+// const UserRouter = require("./routes/userRouter");
 
 require("dotenv").config();
 
@@ -54,8 +54,8 @@ app.listen(PORT, () => {
 
 // Setup routes
 app.use("/", AuthRouter);
-app.use("/users", UserRouter);
-app.use("/google", GoogleRouter);
+// app.use("/users", UserRouter);
+// app.use("/google", GoogleRouter);
 
 // endpoint not found response
 app.use((req, res, next) => {
