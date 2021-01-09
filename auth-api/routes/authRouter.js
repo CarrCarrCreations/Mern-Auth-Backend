@@ -19,6 +19,17 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
+router.post("/login", async (req, res) => {
+  try {
+    let { service, email, password } = req.body;
+    const user = await AuthService.loginUser(service, { email, password });
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/user", auth, async (req, res, next) => {
   try {
     const user = await AuthService.findUserById(req.user.id);

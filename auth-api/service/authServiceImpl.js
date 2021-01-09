@@ -1,6 +1,10 @@
 const bcrypt = require("bcryptjs");
 const { Error } = require("../../error");
-const { validateRequest } = require("./authServiceHelper");
+const {
+  validateRegisterRequest,
+  validateLoginRequest,
+  generateAccessAndRefreshTokens,
+} = require("./authServiceHelper");
 
 const findUserById = (UserRepository) => async (id) => {
   const user = await UserRepository.findUserBy(
@@ -19,7 +23,10 @@ const findUserById = (UserRepository) => async (id) => {
 
 const registerUser = (UserRepository) => async (service, user) => {
   try {
-    const { valid, message: errorMessage } = validateRequest(service, user);
+    const { valid, message: errorMessage } = validateRegisterRequest(
+      service,
+      user
+    );
     if (!valid) {
       throw Error(errorMessage);
     }
@@ -70,9 +77,57 @@ const registerUser = (UserRepository) => async (service, user) => {
   }
 };
 
+const loginUser = (UserRepository) => async (service, user) => {
+  try {
+    const { valid, message: errorMessage } = validateLoginRequest(
+      service,
+      user
+    );
+    if (!valid) {
+      throw Error(errorMessage);
+    }
+
+    const userExists = await UserRepository.findUserBy({
+      field: "email",
+      value: user.email,
+    });
+    if (!userExists[0])
+      throw Error("An account with this email does not exist");
+    foundUser = userExists[0];
+
+    if (service == "native") {
+      // Validate correct password is given
+      const isMatch = await bcrypt.compare(user.password, foundUser.password);
+      if (!isMatch)
+        throw Error({
+          status: 400,
+          message: "Invalid Credentials",
+        });
+    }
+
+    const { accessToken, refreshToken } = generateAccessAndRefreshTokens(
+      foundUser._id
+    );
+
+    // await saveRefreshToken(user._id, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: foundUser._id,
+        displayName: foundUser.displayName,
+      },
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = (UserRepository) => {
   return {
     findUser: findUserById(UserRepository),
     register: registerUser(UserRepository),
+    loginUser: loginUser(UserRepository),
   };
 };

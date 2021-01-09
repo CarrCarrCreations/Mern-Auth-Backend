@@ -1,4 +1,36 @@
-const validateRequest = (service, user) => {
+const jwt = require("jsonwebtoken");
+
+const generateAccessToken = (userID) => {
+  return jwt.sign(
+    {
+      id: userID,
+    },
+    process.env.JWT_ACCESS_TOKEN_SECRET,
+    { expiresIn: "50m" }
+  );
+};
+
+const generateRefreshToken = (userID) => {
+  return jwt.sign(
+    {
+      id: userID,
+    },
+    process.env.JWT_REFRESH_TOKEN_SECRET,
+    { expiresIn: "7d" }
+  );
+};
+
+const generateAccessAndRefreshTokens = (userId) => {
+  const accessToken = generateAccessToken(userId);
+  const refreshToken = generateRefreshToken(userId);
+
+  return {
+    accessToken,
+    refreshToken,
+  };
+};
+
+const validateRegisterRequest = (service, user) => {
   const { email, password, passwordCheck } = user;
 
   switch (service) {
@@ -38,6 +70,32 @@ const validateRequest = (service, user) => {
   return { valid: true, message: "" };
 };
 
+const validateLoginRequest = (service, user) => {
+  switch (service) {
+    case "google": {
+      if (!user.email)
+        return { valid: false, message: "Not all fields have been entered" };
+      break;
+    }
+    case "native": {
+      if (!user.email || !user.password)
+        return { valid: false, message: "Not all fields have been entered" };
+      break;
+    }
+    default: {
+      return {
+        valid: false,
+        message: "Login service requested does not request",
+      };
+    }
+  }
+  return { valid: true, message: "" };
+};
+
 module.exports = {
-  validateRequest,
+  validateRegisterRequest,
+  validateLoginRequest,
+  generateAccessToken,
+  generateRefreshToken,
+  generateAccessAndRefreshTokens,
 };
