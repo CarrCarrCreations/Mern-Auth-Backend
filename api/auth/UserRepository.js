@@ -81,8 +81,7 @@ const saveUser = async (service, user) => {
         await bcrypt.hash(password, salt, (error, hashedPassword) => {
           if (error) throw error;
 
-          const savedUser = createNativeUser(email, hashedPassword);
-          return savedUser;
+          createNativeUser(email, hashedPassword);
         });
         return { message: "User registered successfully" };
       } catch (error) {
