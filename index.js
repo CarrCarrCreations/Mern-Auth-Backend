@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./repository/mongooseConfig");
 const { v4: uuid4 } = require("uuid");
+const fs = require("fs");
+const path = require("path");
 
 const AuthRouter = require("./routes/authRouter");
 const GoogleRouter = require("./routes/googleRouter");
@@ -15,16 +17,32 @@ app.use(express.json());
 app.use(cors());
 
 const morgan = require("morgan");
+
 morgan.token("id", (req) => {
   return req.id;
 });
+
+morgan.token("param", (req) => {
+  return "userToken";
+});
+
 const assignId = (req, res, next) => {
   req.id = uuid4();
   next();
 };
 
 app.use(assignId);
-app.use(morgan(":id :method :status :url 'HTTP/:http-version'"));
+
+let accessLogStream = fs.createWriteStream(path.join(__dirname, "access_log"), {
+  flags: "a",
+});
+
+app.use(morgan(":id :param :method :status :url 'HTTP/:http-version'"));
+app.use(
+  morgan(":id :param :method :status :url 'HTTP/:http-version'", {
+    stream: accessLogStream,
+  })
+);
 
 const PORT = process.env.PORT || 4000;
 
