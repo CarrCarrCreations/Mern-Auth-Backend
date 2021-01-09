@@ -41,7 +41,10 @@ const registerUser = (UserRepository) => async (service, user) => {
             async (error, hashedPassword) => {
               if (error) throw error;
 
-              await UserRepository.createNativeUser(user.email, hashedPassword);
+              await UserRepository.createUserWithEmailAndPassword(
+                user.email,
+                hashedPassword
+              );
             }
           );
 
@@ -54,9 +57,6 @@ const registerUser = (UserRepository) => async (service, user) => {
         throw Error("Register service requested does not request");
       }
     }
-
-    // const savedUserResponse = await UserRepository.saveUser(service, user);
-    // return savedUserResponse;
   } catch (error) {
     throw error;
   }

@@ -25,15 +25,24 @@ const findUserByEmail = (User) => async (email) => {
   return user;
 };
 
-const createUserWithEmail = (User) => async (email) => {
-  const newUser = new User({
-    email,
-  });
+const createUserWithEmail = (newUserFn) => async (email) => {
+  const newUser = newUserFn(email);
 
-  return await newUser.save();
+  const savedUser = await newUser
+    .save()
+    .then((user) => {
+      return user;
+    })
+    .catch((error) => {
+      throw error;
+    });
+  return savedUser;
 };
 
-const createNativeUser = (newUserFn) => async (email, passwordHash) => {
+const createUserWithEmailAndPassword = (newUserFn) => async (
+  email,
+  passwordHash
+) => {
   const newUser = newUserFn(email, passwordHash);
 
   const savedUser = await newUser
@@ -47,7 +56,7 @@ const createNativeUser = (newUserFn) => async (email, passwordHash) => {
   return savedUser;
 };
 
-const findByIdAndDelete = (User) => async (uid) => {
+const findUserByIdAndDelete = (User) => async (uid) => {
   const deletedUser = await User.findByIdAndDelete(uid, (error, res) => {
     if (error) throw error;
     return res;
@@ -59,8 +68,8 @@ module.exports = (User, newUserFn) => {
   return {
     findUserById: findUserById(User),
     findUserByEmail: findUserByEmail(User),
-    createUserWithEmail: createUserWithEmail(User),
-    createNativeUser: createNativeUser(newUserFn),
-    findByIdAndDelete: findByIdAndDelete(User),
+    findUserByIdAndDelete: findUserByIdAndDelete(User),
+    createUserWithEmail: createUserWithEmail(newUserFn),
+    createUserWithEmailAndPassword: createUserWithEmailAndPassword(newUserFn),
   };
 };
