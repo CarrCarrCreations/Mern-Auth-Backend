@@ -1,6 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./repository/mongooseConfig");
+
+const AuthRouter = require("./routes/authRouter");
+const GoogleRouter = require("./routes/googleRouter");
+const UserRouter = require("./routes/userRouter");
+
 require("dotenv").config();
 
 // setup express
@@ -21,9 +26,9 @@ app.listen(PORT, () => {
 app.use(morgan("dev"));
 
 // Setup routes
-app.use("/", require("./routes/authRouter"));
-app.use("/users", require("./routes/userRouter"));
-app.use("/google", require("./routes/googleRouter"));
+app.use("/", AuthRouter);
+app.use("/users", UserRouter);
+app.use("/google", GoogleRouter);
 
 // endpoint not found response
 app.use((req, res, next) => {
