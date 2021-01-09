@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const { Error } = require("../../error");
 
 const findUserById = (UserRepository) => async (id) => {
@@ -19,8 +20,43 @@ const registerUser = (UserRepository) => async (service, user) => {
     const userExists = await UserRepository.findUserByEmail(user.email);
     if (userExists) throw Error("An account with this email already exists.");
 
-    const savedUserResponse = await UserRepository.saveUser(service, user);
-    return savedUserResponse;
+    switch (service) {
+      case "google": {
+        return await UserRepository.createUserWithEmail(user.email)
+          .then((_) => {
+            return { message: "User registered successfully" };
+          })
+          .catch((error) => {
+            throw error;
+          });
+      }
+      case "native": {
+        try {
+          // Hash the password, NEVER save pure password in database
+          const salt = await bcrypt.genSalt();
+
+          await bcrypt.hash(
+            user.password,
+            salt,
+            async (error, hashedPassword) => {
+              if (error) throw error;
+
+              await UserRepository.createNativeUser(user.email, hashedPassword);
+            }
+          );
+
+          return { message: "User registered successfully" };
+        } catch (error) {
+          throw error;
+        }
+      }
+      default: {
+        throw Error("Register service requested does not request");
+      }
+    }
+
+    // const savedUserResponse = await UserRepository.saveUser(service, user);
+    // return savedUserResponse;
   } catch (error) {
     throw error;
   }

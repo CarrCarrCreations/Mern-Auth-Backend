@@ -55,40 +55,6 @@ const findByIdAndDelete = (User) => async (uid) => {
   return deletedUser;
 };
 
-const saveUser = (newUserFn) => async (service, user) => {
-  const { email, password } = user;
-
-  switch (service) {
-    case "google": {
-      return await createUserWithEmail(email)
-        .then((_) => {
-          return { message: "User registered successfully" };
-        })
-        .catch((error) => {
-          throw error;
-        });
-    }
-    case "native": {
-      try {
-        // Hash the password, NEVER save pure password in database
-        const salt = await bcrypt.genSalt();
-        createNativeUser(newUserFn)(email, password);
-        await bcrypt.hash(password, salt, async (error, hashedPassword) => {
-          if (error) throw error;
-
-          await this.createNativeUser(email, hashedPassword);
-        });
-        return { message: "User registered successfully" };
-      } catch (error) {
-        throw error;
-      }
-    }
-    default: {
-      throw Error("Register service requested does not request");
-    }
-  }
-};
-
 module.exports = (User, newUserFn) => {
   return {
     findUserById: findUserById(User),
@@ -96,6 +62,5 @@ module.exports = (User, newUserFn) => {
     createUserWithEmail: createUserWithEmail(User),
     createNativeUser: createNativeUser(newUserFn),
     findByIdAndDelete: findByIdAndDelete(User),
-    saveUser: saveUser(newUserFn),
   };
 };
