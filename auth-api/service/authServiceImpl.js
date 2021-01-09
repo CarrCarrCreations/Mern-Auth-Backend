@@ -22,7 +22,7 @@ const registerUser = (UserRepository) => async (service, user) => {
 
     switch (service) {
       case "google": {
-        return await UserRepository.createUserWithEmail(user.email)
+        return await UserRepository.createUser(user.email)
           .then((_) => {
             return { message: "User registered successfully" };
           })
@@ -41,10 +41,7 @@ const registerUser = (UserRepository) => async (service, user) => {
             async (error, hashedPassword) => {
               if (error) throw error;
 
-              await UserRepository.createUserWithEmailAndPassword(
-                user.email,
-                hashedPassword
-              );
+              await UserRepository.createUser(user.email, hashedPassword);
             }
           );
 

@@ -1,6 +1,20 @@
 const bcrypt = require("bcryptjs");
 const Error = require("../../../error");
 
+const createUser = (newUserFn) => async (email, passwordHash) => {
+  const newUser = newUserFn(email, passwordHash);
+
+  const savedUser = await newUser
+    .save()
+    .then((user) => {
+      return user;
+    })
+    .catch((error) => {
+      throw error;
+    });
+  return savedUser;
+};
+
 const findUserById = (User) => async (id) => {
   const user = await User.findById(id, (error, res) => {
     if (error) throw error;
@@ -25,37 +39,6 @@ const findUserByEmail = (User) => async (email) => {
   return user;
 };
 
-const createUserWithEmail = (newUserFn) => async (email) => {
-  const newUser = newUserFn(email);
-
-  const savedUser = await newUser
-    .save()
-    .then((user) => {
-      return user;
-    })
-    .catch((error) => {
-      throw error;
-    });
-  return savedUser;
-};
-
-const createUserWithEmailAndPassword = (newUserFn) => async (
-  email,
-  passwordHash
-) => {
-  const newUser = newUserFn(email, passwordHash);
-
-  const savedUser = await newUser
-    .save()
-    .then((user) => {
-      return user;
-    })
-    .catch((error) => {
-      throw error;
-    });
-  return savedUser;
-};
-
 const findUserByIdAndDelete = (User) => async (uid) => {
   const deletedUser = await User.findByIdAndDelete(uid, (error, res) => {
     if (error) throw error;
@@ -69,7 +52,6 @@ module.exports = (User, newUserFn) => {
     findUserById: findUserById(User),
     findUserByEmail: findUserByEmail(User),
     findUserByIdAndDelete: findUserByIdAndDelete(User),
-    createUserWithEmail: createUserWithEmail(newUserFn),
-    createUserWithEmailAndPassword: createUserWithEmailAndPassword(newUserFn),
+    createUser: createUser(newUserFn),
   };
 };
