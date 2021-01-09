@@ -1,8 +1,7 @@
 const bcrypt = require("bcryptjs");
-const User = require("../model/userModel");
 const Error = require("../../../error");
 
-const findUserById = async (id) => {
+const findUserById = (User) => async (id) => {
   const user = await User.findById(id, (error, res) => {
     if (error) throw error;
     return res;
@@ -11,7 +10,7 @@ const findUserById = async (id) => {
   return user;
 };
 
-const findUserByEmail = async (email) => {
+const findUserByEmail = (User) => async (email) => {
   const user = await User.findOne({
     email: email,
   })
@@ -26,7 +25,7 @@ const findUserByEmail = async (email) => {
   return user;
 };
 
-const createUserWithEmail = async (email) => {
+const createUserWithEmail = (User) => async (email) => {
   const newUser = new User({
     email,
   });
@@ -34,12 +33,8 @@ const createUserWithEmail = async (email) => {
   return await newUser.save();
 };
 
-const createNativeUser = async (email, passwordHash) => {
-  //Save the user
-  const newUser = new User({
-    email,
-    password: passwordHash,
-  });
+const createNativeUser = (newUserFn) => async (email, passwordHash) => {
+  const newUser = newUserFn(email, passwordHash);
 
   const savedUser = await newUser
     .save()
@@ -49,11 +44,10 @@ const createNativeUser = async (email, passwordHash) => {
     .catch((error) => {
       throw error;
     });
-
   return savedUser;
 };
 
-const findByIdAndDelete = async (uid) => {
+const findByIdAndDelete = (User) => async (uid) => {
   const deletedUser = await User.findByIdAndDelete(uid, (error, res) => {
     if (error) throw error;
     return res;
@@ -61,7 +55,7 @@ const findByIdAndDelete = async (uid) => {
   return deletedUser;
 };
 
-const saveUser = async (service, user) => {
+const saveUser = (newUserFn) => async (service, user) => {
   const { email, password } = user;
 
   switch (service) {
@@ -78,10 +72,11 @@ const saveUser = async (service, user) => {
       try {
         // Hash the password, NEVER save pure password in database
         const salt = await bcrypt.genSalt();
-        await bcrypt.hash(password, salt, (error, hashedPassword) => {
+        createNativeUser(newUserFn)(email, password);
+        await bcrypt.hash(password, salt, async (error, hashedPassword) => {
           if (error) throw error;
 
-          createNativeUser(email, hashedPassword);
+          await this.createNativeUser(email, hashedPassword);
         });
         return { message: "User registered successfully" };
       } catch (error) {
@@ -94,11 +89,13 @@ const saveUser = async (service, user) => {
   }
 };
 
-module.exports = {
-  findUserById,
-  findUserByEmail,
-  createUserWithEmail,
-  createNativeUser,
-  findByIdAndDelete,
-  saveUser,
+module.exports = (User, newUserFn) => {
+  return {
+    findUserById: findUserById(User),
+    findUserByEmail: findUserByEmail(User),
+    createUserWithEmail: createUserWithEmail(User),
+    createNativeUser: createNativeUser(newUserFn),
+    findByIdAndDelete: findByIdAndDelete(User),
+    saveUser: saveUser(newUserFn),
+  };
 };

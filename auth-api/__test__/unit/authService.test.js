@@ -1,9 +1,9 @@
-const UserService = require("../../user/userService");
+const AuthService = require("../../service/authService");
 const sinon = require("sinon");
 
 describe("UserService test", () => {
   it("has a module", () => {
-    expect(UserService).toBeDefined();
+    expect(AuthService).toBeDefined();
   });
 
   it("getUser test", () => {
@@ -11,7 +11,7 @@ describe("UserService test", () => {
       findUserById: sinon.spy(),
     };
 
-    const userService = UserService(MockRepository);
+    const userService = AuthService(MockRepository);
     userService.findUser("1023jkdjsla");
     const expected = true;
 

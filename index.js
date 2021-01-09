@@ -5,7 +5,7 @@ const { v4: uuid4 } = require("uuid");
 const fs = require("fs");
 const path = require("path");
 
-const AuthRouter = require("./api/routes/authRouter");
+const AuthRouter = require("./auth-api/routes/authRouter");
 const { errorHandler } = require("./error");
 // const GoogleRouter = require("./routes/googleRouter");
 // const UserRouter = require("./routes/userRouter");
