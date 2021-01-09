@@ -7,15 +7,15 @@ describe("UserService test", () => {
   });
 
   it("getUser test", () => {
-    const MockModel = {
+    const MockRepository = {
       findUserById: sinon.spy(),
     };
 
-    const userService = UserService(MockModel);
+    const userService = UserService(MockRepository);
     userService.findUser("1023jkdjsla");
     const expected = true;
 
-    const actual = MockModel.findUserById.calledOnce;
+    const actual = MockRepository.findUserById.calledOnce;
     expect(actual).toEqual(expected);
   });
 });
