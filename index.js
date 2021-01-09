@@ -23,7 +23,7 @@ morgan.token("id", (req) => {
 });
 
 morgan.token("param", (req) => {
-  return "userToken";
+  return "customToken";
 });
 
 const assignId = (req, res, next) => {
