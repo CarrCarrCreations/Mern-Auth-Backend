@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const AuthService = require("../../auth");
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   try {
     let { email, password, passwordCheck, displayName } = req.body;
 
@@ -14,7 +14,10 @@ router.post("/register", async (req, res) => {
 
     res.status(200).json(registeredUser);
   } catch (error) {
-    res.status(500).json({ error });
+    next({
+      status: 500,
+      message: error,
+    });
   }
 });
 
