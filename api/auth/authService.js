@@ -13,7 +13,7 @@ const registerUser = (UserRepository) => async (service, user) => {
   try {
     const { valid, message: errorMessage } = validateRequest(service, user);
     if (!valid) {
-      throw Error(errorMessage, 400);
+      throw Error(errorMessage);
     }
 
     const userExists = await UserRepository.findUserByEmail(user.email);
