@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const db = require("./repository/mongooseConfig");
+const { v4: uuid4 } = require("uuid");
 
 const AuthRouter = require("./routes/authRouter");
 const GoogleRouter = require("./routes/googleRouter");
@@ -14,6 +15,17 @@ app.use(express.json());
 app.use(cors());
 
 const morgan = require("morgan");
+morgan.token("id", (req) => {
+  return req.id;
+});
+const assignId = (req, res, next) => {
+  req.id = uuid4();
+  next();
+};
+
+app.use(assignId);
+app.use(morgan(":id :method :status :url 'HTTP/:http-version'"));
+
 const PORT = process.env.PORT || 4000;
 
 db.connect();
@@ -21,9 +33,6 @@ db.connect();
 app.listen(PORT, () => {
   console.log(`The server has started on port: ${PORT}`);
 });
-
-// set morgan for routing
-app.use(morgan("dev"));
 
 // Setup routes
 app.use("/", AuthRouter);
