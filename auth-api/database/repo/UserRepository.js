@@ -2,15 +2,9 @@ const User = require("../model/userModel");
 const UserRepositoryImpl = require("../repo/UserRepositoryImpl");
 
 const newUserFn = (email, passwordHash) => {
-  if (passwordHash)
-    return new User({
-      email,
-      password: passwordHash,
-    });
-  else
-    return new User({
-      email,
-    });
+  let creds = { email };
+  if (passwordHash) creds = { ...creds, password: passwordHash };
+  return new User(creds);
 };
 
 module.exports = UserRepositoryImpl(User, newUserFn);

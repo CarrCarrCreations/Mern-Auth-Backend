@@ -2,10 +2,16 @@ const bcrypt = require("bcryptjs");
 const { Error } = require("../../error");
 
 const findUserById = (UserRepository) => async (id) => {
-  const user = await UserRepository.findUserById(id, (error, res) => {
-    if (error) throw error;
-    return res;
-  });
+  const user = await UserRepository.findUserBy(
+    {
+      field: "_id",
+      valid: id,
+    },
+    (error, res) => {
+      if (error) throw error;
+      return res;
+    }
+  );
 
   return user;
 };
@@ -17,8 +23,12 @@ const registerUser = (UserRepository) => async (service, user) => {
       throw Error(errorMessage);
     }
 
-    const userExists = await UserRepository.findUserByEmail(user.email);
-    if (userExists) throw Error("An account with this email already exists.");
+    const userExists = await UserRepository.findUserBy({
+      field: "email",
+      value: user.email,
+    });
+    if (userExists.length > 0)
+      throw Error("An account with this email already exists.");
 
     switch (service) {
       case "google": {

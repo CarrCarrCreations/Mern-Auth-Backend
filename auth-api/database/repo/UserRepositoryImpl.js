@@ -15,27 +15,17 @@ const createUser = (newUserFn) => async (email, passwordHash) => {
   return savedUser;
 };
 
-const findUserById = (User) => async (id) => {
-  const user = await User.findById(id, (error, res) => {
-    if (error) throw error;
-    return res;
-  });
-
-  return user;
-};
-
-const findUserByEmail = (User) => async (email) => {
-  const user = await User.findOne({
-    email: email,
-  })
+const findUserBy = (User) => async ({ field, value }) => {
+  const user = User.find()
+    .where(field)
+    .equals(value)
     .exec()
-    .then((res) => {
-      return res;
+    .then((user) => {
+      return user;
     })
     .catch((error) => {
       throw error;
     });
-
   return user;
 };
 
@@ -49,8 +39,7 @@ const findUserByIdAndDelete = (User) => async (uid) => {
 
 module.exports = (User, newUserFn) => {
   return {
-    findUserById: findUserById(User),
-    findUserByEmail: findUserByEmail(User),
+    findUserBy: findUserBy(User),
     findUserByIdAndDelete: findUserByIdAndDelete(User),
     createUser: createUser(newUserFn),
   };
