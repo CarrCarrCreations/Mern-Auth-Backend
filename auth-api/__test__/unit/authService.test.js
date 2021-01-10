@@ -1,4 +1,4 @@
-const AuthService = require("../../service/authService");
+const AuthService = require("../../service/authServiceImpl");
 const sinon = require("sinon");
 
 describe("UserService test", () => {
@@ -11,8 +11,8 @@ describe("UserService test", () => {
       findUserById: sinon.spy(),
     };
 
-    const userService = AuthService(MockRepository);
-    userService.findUser("1023jkdjsla");
+    const authService = AuthService(MockRepository);
+    authService.findUserById("5ffa0f1ccdcf6908248ba239");
     const expected = true;
 
     const actual = MockRepository.findUserById.calledOnce;
