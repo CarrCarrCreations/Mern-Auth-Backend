@@ -19,13 +19,23 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", async (req, res, next) => {
   try {
     let { service, email, password } = req.body;
     const user = await AuthService.loginUser(service, { email, password });
 
     res.status(200).json(user);
   } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/logout", async (req, res) => {
+  try {
+    const logoutResponse = await AuthService.logoutUser(req.user.id);
+
+    res.status(200).json(logoutResponse);
+  } catch (err) {
     next(error);
   }
 });

@@ -80,7 +80,10 @@ const registerUser = (UserRepository) => async (service, user) => {
   }
 };
 
-const loginUser = (UserRepository) => async (service, user) => {
+const loginUser = (UserRepository, RefreshTokenRepository) => async (
+  service,
+  user
+) => {
   try {
     const { valid, message: errorMessage } = validateLoginRequest(
       service,
@@ -112,7 +115,7 @@ const loginUser = (UserRepository) => async (service, user) => {
       foundUser._id
     );
 
-    // await saveRefreshToken(user._id, refreshToken);
+    await RefreshTokenRepository.saveRefreshToken(foundUser._id, refreshToken);
 
     return {
       accessToken,
@@ -122,6 +125,14 @@ const loginUser = (UserRepository) => async (service, user) => {
         displayName: foundUser.displayName,
       },
     };
+  } catch (error) {
+    throw error;
+  }
+};
+
+logoutUser = (RefreshTokenRepository) => async (uid) => {
+  try {
+    return await RefreshTokenRepository.deleteAllUserRefreshTokens(uid);
   } catch (error) {
     throw error;
   }
@@ -178,10 +189,11 @@ const getGoogleAccessToken = async (code, redirectLocation) => {
     });
 };
 
-module.exports = (UserRepository) => {
+module.exports = (UserRepository, RefreshTokenRepository) => {
   return {
     findUserById: findUserById(UserRepository),
     register: registerUser(UserRepository),
-    loginUser: loginUser(UserRepository),
+    loginUser: loginUser(UserRepository, RefreshTokenRepository),
+    logoutUser: logoutUser(UserRepository, RefreshTokenRepository),
   };
 };
