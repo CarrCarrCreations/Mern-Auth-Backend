@@ -39,4 +39,16 @@ router.get("/user", auth, async (req, res, next) => {
   }
 });
 
+router.post("/google", async (req, res) => {
+  try {
+    const googleUser = await AuthService.getGoogleUser(
+      req.body.code,
+      req.body.redirectLocation
+    );
+    res.status(200).json(googleUser);
+  } catch (err) {
+    next(error);
+  }
+});
+
 module.exports = router;

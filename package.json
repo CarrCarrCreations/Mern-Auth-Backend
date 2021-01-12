@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon index.js",
     "debug": "nodemon --inspect index.js",
-    "test": "jest --forceExit"
+    "test": "jest --watch"
   },
   "keywords": [],
   "author": "",
