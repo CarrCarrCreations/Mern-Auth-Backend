@@ -1,6 +1,15 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
+const db = require("./configs/mongoose");
+const { v4: uuid4 } = require("uuid");
+const fs = require("fs");
+const path = require("path");
+
+const AuthRouter = require("./auth-api/routes/authRouter");
+const { errorHandler } = require("./error");
+// const GoogleRouter = require("./routes/googleRouter");
+// const UserRouter = require("./routes/userRouter");
+
 require("dotenv").config();
 
 // setup express
@@ -8,25 +17,55 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+const morgan = require("morgan");
+
+morgan.token("id", (req) => {
+  return req.id;
+});
+
+morgan.token("param", (req) => {
+  return "customToken";
+});
+
+const assignId = (req, res, next) => {
+  req.id = uuid4();
+  next();
+};
+
+app.use(assignId);
+
+let accessLogStream = fs.createWriteStream(path.join(__dirname, "access_log"), {
+  flags: "a",
+});
+
+app.use(morgan(":id :param :method :status :url 'HTTP/:http-version'"));
+app.use(
+  morgan(":id :param :method :status :url 'HTTP/:http-version'", {
+    stream: accessLogStream,
+  })
+);
+
 const PORT = process.env.PORT || 5000;
+
+db.connect();
 
 app.listen(PORT, () => {
   console.log(`The server has started on port: ${PORT}`);
 });
 
-// Setup mongoose
-mongoose.connect(
-  process.env.MONGODB_CONNECTION_STRING,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-  },
-  (err) => {
-    if (err) throw err;
-    console.log("MongoDB connection established.");
-  }
-);
-
 // Setup routes
-app.use("/users", require("./routes/userRouter"));
+app.use("/", AuthRouter);
+// app.use("/users", UserRouter);
+// app.use("/google", GoogleRouter);
+
+// endpoint not found response
+app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  res.status("404");
+  next(error);
+});
+
+// Global error handler
+app.use(errorHandler);
+
+module.exports = app;
